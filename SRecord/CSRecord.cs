@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace WelchAllyn.SRecord
@@ -56,7 +56,20 @@ namespace WelchAllyn.SRecord
         {
             get
             {
-                return Encoding.ASCII.GetBytes(Data);
+                if (data.Length % 2 != 0)
+                {
+                    throw new ArgumentException("The binary key cannot have an odd number of digits.");
+                }
+
+                byte[] HexAsBytes = new byte[data.Length / 2];
+
+                for (int index = 0; index < HexAsBytes.Length; index++)
+                {
+                    string byteValue = data.Substring(index * 2, 2);
+                    HexAsBytes[index] = byte.Parse(byteValue, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+                }
+
+                return HexAsBytes;
             }
         }
 
@@ -99,8 +112,8 @@ namespace WelchAllyn.SRecord
 
             inputData = line;
             startCode = line.Substring(0, 1);
-            recordType = int.Parse(line.Substring(1, 1), System.Globalization.NumberStyles.HexNumber);
-            byteCount = int.Parse(line.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+            recordType = int.Parse(line.Substring(1, 1), NumberStyles.HexNumber);
+            byteCount = int.Parse(line.Substring(2, 2), NumberStyles.HexNumber);
 
             switch (recordType)
             {
@@ -108,14 +121,14 @@ namespace WelchAllyn.SRecord
                     int length = line.Length;
                     data = line.Substring(8, line.Length - 10);  // Length = Length - recordtype - byte count - address - checksum
                     string crc = line.Substring(line.Length - 2, 2);
-                    checkSum = int.Parse(line.Substring(inputData.Length - 2, 2), System.Globalization.NumberStyles.HexNumber);
+                    checkSum = int.Parse(line.Substring(inputData.Length - 2, 2), NumberStyles.HexNumber);
 
                     break;
                 case 1:
                     address = line.Substring(4, 4);
                     memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
                     data = line.Substring(8, (byteCount - 3) * 2);
-                    checkSum = int.Parse(line.Substring(((byteCount - 3) * 2) + 8, 2), System.Globalization.NumberStyles.HexNumber);
+                    checkSum = int.Parse(line.Substring(((byteCount - 3) * 2) + 8, 2), NumberStyles.HexNumber);
                     crcCheck = CheckCRC(line, checkSum);
                     dataByteCount = byteCount - 3;  // byteCount - address bytes - checksum
                     break;
@@ -123,7 +136,7 @@ namespace WelchAllyn.SRecord
                     address = line.Substring(4, 6);
                     memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
                     data = line.Substring(10, (byteCount - 4) * 2);
-                    checkSum = int.Parse(line.Substring(((byteCount - 4) * 2) + 10, 2), System.Globalization.NumberStyles.HexNumber);
+                    checkSum = int.Parse(line.Substring(((byteCount - 4) * 2) + 10, 2), NumberStyles.HexNumber);
                     crcCheck = CheckCRC(line, checkSum);
                     dataByteCount = byteCount - 4;  // byteCount - address bytes - checksum
                     //totalBytes = totalBytes + data.Length;
@@ -132,7 +145,7 @@ namespace WelchAllyn.SRecord
                     address = line.Substring(4, 8);
                     memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
                     data = line.Substring(12, (byteCount - 5) * 2);
-                    checkSum = int.Parse(line.Substring(((byteCount - 5) * 2) + 12, 2), System.Globalization.NumberStyles.HexNumber);
+                    checkSum = int.Parse(line.Substring(((byteCount - 5) * 2) + 12, 2), NumberStyles.HexNumber);
                     crcCheck = CheckCRC(line, checkSum);
                     dataByteCount = byteCount - 5;  // byteCount - address bytes - checksum
                     break;
@@ -146,7 +159,7 @@ namespace WelchAllyn.SRecord
 
                     address = line.Substring(4, 8);
                     memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
-                    checkSum = int.Parse(line.Substring(line.Length - 2, 2), System.Globalization.NumberStyles.HexNumber);
+                    checkSum = int.Parse(line.Substring(line.Length - 2, 2), NumberStyles.HexNumber);
 
                     break;
 
@@ -154,7 +167,7 @@ namespace WelchAllyn.SRecord
 
                     address = line.Substring(4, 6);
                     memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
-                    checkSum = int.Parse(line.Substring(line.Length - 2, 2), System.Globalization.NumberStyles.HexNumber);
+                    checkSum = int.Parse(line.Substring(line.Length - 2, 2), NumberStyles.HexNumber);
 
                     break;
 
@@ -162,7 +175,7 @@ namespace WelchAllyn.SRecord
 
                     address = line.Substring(4, 4);
                     memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
-                    checkSum = int.Parse(line.Substring(line.Length - 2, 2), System.Globalization.NumberStyles.HexNumber);
+                    checkSum = int.Parse(line.Substring(line.Length - 2, 2), NumberStyles.HexNumber);
 
                     break;
 
@@ -189,7 +202,7 @@ namespace WelchAllyn.SRecord
             while (counter < line.Length - 2)
             {
                 pair = line.Substring(counter, 2);
-                temp = int.Parse(pair, System.Globalization.NumberStyles.HexNumber);
+                temp = int.Parse(pair, NumberStyles.HexNumber);
                 total = total + temp;
                 counter = counter + 2;
             }
