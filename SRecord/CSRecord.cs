@@ -12,7 +12,7 @@ namespace WelchAllyn.SRecord
         int recordType = -1;
         int byteCount = 0;
         int dataByteCount = 0;
-        int memoryAddr = 0;
+        uint memoryAddr = 0;
         string data = "";
         int checkSum = 0;
         string inputData = "";
@@ -40,7 +40,7 @@ namespace WelchAllyn.SRecord
             set { byteCount = value; }
         }
 
-        public int MemoryAddress
+        public uint MemoryAddress
         {
             get { return memoryAddr; }
             set { memoryAddr = value; }
@@ -101,6 +101,20 @@ namespace WelchAllyn.SRecord
 
         #region Constructors
 
+        public enum SRecordType
+        {
+            S0,
+            S1,
+            S2,
+            S3,
+            S4,
+            S5,
+            S6,
+            S7,
+            S8,
+            S9
+        }
+
         public CSRecord()
         {
         }
@@ -126,7 +140,7 @@ namespace WelchAllyn.SRecord
                     break;
                 case 1:
                     address = line.Substring(4, 4);
-                    memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
+                    memoryAddr = uint.Parse(address, System.Globalization.NumberStyles.HexNumber);
                     data = line.Substring(8, (byteCount - 3) * 2);
                     checkSum = int.Parse(line.Substring(((byteCount - 3) * 2) + 8, 2), NumberStyles.HexNumber);
                     crcCheck = CheckCRC(line, checkSum);
@@ -134,7 +148,7 @@ namespace WelchAllyn.SRecord
                     break;
                 case 2:
                     address = line.Substring(4, 6);
-                    memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
+                    memoryAddr = uint.Parse(address, System.Globalization.NumberStyles.HexNumber);
                     data = line.Substring(10, (byteCount - 4) * 2);
                     checkSum = int.Parse(line.Substring(((byteCount - 4) * 2) + 10, 2), NumberStyles.HexNumber);
                     crcCheck = CheckCRC(line, checkSum);
@@ -143,7 +157,7 @@ namespace WelchAllyn.SRecord
                     break;
                 case 3:
                     address = line.Substring(4, 8);
-                    memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
+                    memoryAddr = uint.Parse(address, System.Globalization.NumberStyles.HexNumber);
                     data = line.Substring(12, (byteCount - 5) * 2);
                     checkSum = int.Parse(line.Substring(((byteCount - 5) * 2) + 12, 2), NumberStyles.HexNumber);
                     crcCheck = CheckCRC(line, checkSum);
@@ -158,7 +172,7 @@ namespace WelchAllyn.SRecord
                 case 7:
 
                     address = line.Substring(4, 8);
-                    memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
+                    memoryAddr = uint.Parse(address, System.Globalization.NumberStyles.HexNumber);
                     checkSum = int.Parse(line.Substring(line.Length - 2, 2), NumberStyles.HexNumber);
 
                     break;
@@ -166,7 +180,7 @@ namespace WelchAllyn.SRecord
                 case 8:
 
                     address = line.Substring(4, 6);
-                    memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
+                    memoryAddr = uint.Parse(address, System.Globalization.NumberStyles.HexNumber);
                     checkSum = int.Parse(line.Substring(line.Length - 2, 2), NumberStyles.HexNumber);
 
                     break;
@@ -174,7 +188,7 @@ namespace WelchAllyn.SRecord
                 case 9:
 
                     address = line.Substring(4, 4);
-                    memoryAddr = int.Parse(address, System.Globalization.NumberStyles.HexNumber);
+                    memoryAddr = uint.Parse(address, System.Globalization.NumberStyles.HexNumber);
                     checkSum = int.Parse(line.Substring(line.Length - 2, 2), NumberStyles.HexNumber);
 
                     break;
@@ -183,7 +197,7 @@ namespace WelchAllyn.SRecord
 
             if (crcCheck == false)
             {
-                throw new Exception("something");
+                throw new Exception("Checksum failed");
             }
         }
         #endregion
